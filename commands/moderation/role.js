@@ -4,7 +4,7 @@ module.exports = {
     category: 'Moderation',
     description: 'Either gives, takes, or checks if someone has a certain role.',
 
-    requireRole: true,
+    requireRoles: true,
 
     minArgs: 3,
     expectedArgs: `<"${actions.join('", "')}"> <user @> <role @>`,
