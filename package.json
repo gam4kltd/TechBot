@@ -1,0 +1,30 @@
+{
+  "name": "techbot",
+  "version": "1.0.0",
+  "description": "A Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gam4kltd/TechBot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "gam4kltd"
+  ],
+  "author": "gam4kltd",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gam4kltd/TechBot/issues"
+  },
+  "homepage": "https://github.com/gam4kltd/TechBot#readme",
+  "dependencies": {
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "wokcommands": "^1.5.3"
+  }
+}
