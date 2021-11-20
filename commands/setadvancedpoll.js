@@ -1,14 +1,14 @@
-const welcomeSchema = require('../../models/welcome-schema')
+const pollSchema = require('../models/poll-schema')
 
 module.exports = {
 	category: 'Configuration',
-	description: 'Sets the welcome channel.',
+	description: 'Sets the advanced polling channel.',
 
 	permissions: ['ADMINISTRATOR'],
 
-	minArgs: 2,
-	expectedArgs: '<channel> <text>',
-	expectedArgsTypes: ['CHANNEL', 'STRING'],
+	minArgs: 1,
+	expectedArgs: '<channel>',
+	expectedArgsTypes: ['CHANNEL'],
 
 	slash: 'both',
 	// testOnly: true,
@@ -26,19 +26,12 @@ module.exports = {
 			}
 		}
 
-		let text = interaction?.options.getString('text')
-		if (message) {
-			args.shift()
-			text = args.join(' ')
-		}
-
-		await welcomeSchema.findOneAndUpdate(
+		await pollSchema.findOneAndUpdate(
 			{
 				_id: guild.id,
 			},
 			{
 				_id: guild.id,
-				text,
 				channelId: target.id,
 			},
 			{
@@ -48,7 +41,7 @@ module.exports = {
 
 		return {
 			custom: true,
-			content: 'Welcome channel set.',
+			content: 'Advanced polling channel set.',
 			ephemeral: true,
 		}
 	},

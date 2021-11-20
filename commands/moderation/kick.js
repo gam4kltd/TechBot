@@ -1,41 +1,43 @@
 module.exports = {
-    category: 'Moderation',
-    description: 'Kicks a user.',
+	category: 'Moderation',
+	description: 'Kicks a user.',
 
-    requireRoles: true,
+	requireRoles: true,
 
-    slash: 'both',
-    testOnly: true,
+	slash: 'both',
+	// testOnly: true,
 
-    guildOnly: true,
+	guildOnly: true,
 
-    minArgs: 2,
-    expectedArgs: '<user> <reason>',
-    expectedArgsTypes: ['USER', 'STRING'],
+	minArgs: 2,
+	expectedArgs: '<user> <reason>',
+	expectedArgsTypes: ['USER', 'STRING'],
 
-    callback: ({ message, interaction, args }) => {
-        const target = message ? message.mentions.members.first() : interaction.options.getMember('user')
-        if (!target) {
-            return 'Please tag someone to kick.'
-        }
+	callback: ({ message, interaction, args }) => {
+		const target = message
+			? message.mentions.members.first()
+			: interaction.options.getMember('user')
+		if (!target) {
+			return 'Please tag someone to kick.'
+		}
 
-        if (!target.kickable) {
-            return {
-                custom: true,
-                content: 'Cannot kick that user.',
-                ephemeral: true
-            }
-        }
+		if (!target.kickable) {
+			return {
+				custom: true,
+				content: 'Cannot kick that user.',
+				ephemeral: true,
+			}
+		}
 
-        args.shift()
-        const reason = args.join(' ')
+		args.shift()
+		const reason = args.join(' ')
 
-        target.kick(reason)
+		target.kick(reason)
 
-        return {
-            custom: true,
-            content: `You kicked <@${target.id}>`,
-            ephemeral: true
-        }
-    }
+		return {
+			custom: true,
+			content: `You kicked <@${target.id}>`,
+			ephemeral: true,
+		}
+	},
 }

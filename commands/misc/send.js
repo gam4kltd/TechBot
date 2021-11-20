@@ -1,39 +1,41 @@
-const { Message } = require("discord.js");
+const { Message } = require('discord.js')
 
 module.exports = {
-    category: 'Configuration',
-    description: 'Sends a message.',
-    
-    permissions: ['ADMINISTRATOR'], 
+	category: 'Configuration',
+	description: 'Sends a message.',
 
-    minArgs: 2,
-    expectedArgs: '<channel> <text>',
-    expectedArgsTypes: ['CHANNEL', 'STRING'],
+	permissions: ['ADMINISTRATOR'],
 
-    slash: 'both',
-    testOnly: true,
-    guildOnly: true,
+	minArgs: 2,
+	expectedArgs: '<channel> <text>',
+	expectedArgsTypes: ['CHANNEL', 'STRING'],
 
-    callback: ({ message, interaction, args }) => {
-        const channel = message ? message.mentions.channels.first() : interaction.options.getChannel('channel')
-        if (!channel || channel.type !== 'GUILD_TEXT') {
-            return {
-                custom: true,
-                content: 'Please tag a text channel.',
-                ephemeral: true
-            }
-        }
+	slash: 'both',
+	// testOnly: true,
+	guildOnly: true,
 
-        args.shift() // Remove the channel from the args array
-        const text = args.join(' ')
+	callback: ({ message, interaction, args }) => {
+		const channel = message
+			? message.mentions.channels.first()
+			: interaction.options.getChannel('channel')
+		if (!channel || channel.type !== 'GUILD_TEXT') {
+			return {
+				custom: true,
+				content: 'Please tag a text channel.',
+				ephemeral: true,
+			}
+		}
 
-        channel.send(text)
+		args.shift() // Remove the channel from the args array
+		const text = args.join(' ')
 
-        if (interaction) {
-            interaction.reply({
-                content: 'Sent message.',
-                ephemeral: true
-            })
-        }
-    }
+		channel.send(text)
+
+		if (interaction) {
+			interaction.reply({
+				content: 'Sent message.',
+				ephemeral: true,
+			})
+		}
+	},
 }
