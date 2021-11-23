@@ -18,7 +18,7 @@ module.exports = {
 			name: 'message',
 			description: 'The message ID of the suggestion',
 			required: true,
-			type: 'NUMBER',
+			type: 'STRING',
 		},
 		{
 			name: 'status',
