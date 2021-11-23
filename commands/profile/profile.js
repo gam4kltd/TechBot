@@ -1,4 +1,4 @@
-const profileSchema = require('../models/profile-schema')
+const profileSchema = require('../../models/profile-schema')
 const { MessageEmbed } = require('discord.js')
 const profiles = {}
 
@@ -8,7 +8,7 @@ module.exports = {
 		'Either displays your profile or a command to set a profile property',
 
 	slash: 'both',
-	testOnly: true,
+	// testOnly: true,
 	guildOnly: true,
 
 	maxArgs: 0,
@@ -49,19 +49,4 @@ module.exports = {
 	},
 }
 
-// await profileSchema.findOneAndUpdate(
-// 	{
-// 		guildId,
-// 		userId: authorId,
-// 	},
-// 	{
-// 		guildId,
-// 		userId: authorId,
-// 		coins: 0,
-// 		nickname: 'None',
-// 		aboutMe: 'None',
-// 	},
-// 	{
-// 		upsert: true,
-// 	}
-// )
+module.exports.profiles = profiles
