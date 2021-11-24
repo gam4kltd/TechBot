@@ -16,15 +16,17 @@ module.exports = {
 	callback: async ({ message, interaction }) => {
 		const guildId = message ? message.guild.id : interaction.guild.id
 		const authorId = message ? message.author.id : interaction.user.id
-		let data = profiles[(guildId, authorId)]
+		let data = profiles[(guildId, authorId)] // Seeing if their information is stored in local memory
 		if (!data) {
 			let newResults = await profileSchema.findOne({
+				// Seeing if their information is in the database
 				guildId,
 				userId: authorId,
 			})
 
 			if (!newResults) {
 				newResults = await profileSchema.create({
+					// Making a file with their information
 					guildId,
 					userId: authorId,
 					coins: 0,
@@ -33,7 +35,7 @@ module.exports = {
 				})
 			}
 
-			data = profiles[(guildId, authorId)] = newResults
+			data = profiles[(guildId, authorId)] = newResults // Either or, saving it to our "data" variable
 		}
 		const { nickname, aboutMe } = data
 

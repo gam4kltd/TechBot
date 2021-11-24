@@ -10,15 +10,19 @@ const runCode = async (
 	message,
 	interaction
 ) => {
+	// Seeing if their information is stored in local memory
 	let data = profiles[(guildId, authorId)]
 	if (!data) {
+		// Seeing if their information is stored in the database
 		const result = await profileSchema.findOne({
 			guildId,
 			userId: authorId,
 		})
 		if (result) {
+			// Assign their profile to our "data" variable
 			data = profiles[(guildId, authorId)] = result
 		} else {
+			// Making a file with their information
 			const createProfile = await profileSchema.create({
 				guildId,
 				userId: authorId,
@@ -26,17 +30,22 @@ const runCode = async (
 				nickname: 'None',
 				aboutMe: 'None',
 			})
+			// Assign their profile to our "data" variable
 			data = profiles[(guildId, authorId)] = createProfile
 		}
 	}
 
 	let { coins, nickname, aboutMe } = data
 
+	// If they wrote "nickname" as their first argument
 	if (section.toLowerCase() === 'nickname') {
+		// If it's a slash command get rid of their first argument (It's done already for legacy commands)
 		if (interaction) {
 			args.shift()
 		}
+		// Converting their value which is an array to a string
 		nickname = args.join(' ')
+		// Updating their file in the database
 		await profileSchema.findOneAndUpdate(
 			{
 				guildId,
@@ -53,16 +62,23 @@ const runCode = async (
 				upsert: true,
 			}
 		)
+		// Finding their file in the database (we know it exists)
 		const nicknameResult = await profileSchema.findOne({
 			guildId,
 			userId: authorId,
 		})
+		// Assigning their profile to our "data" variable
 		data = profiles[(guildId, authorId)] = nicknameResult
-	} else if (section.toLowerCase() === 'aboutme') {
+	}
+	// If they wrote "aboutme" as their second argument
+	else if (section.toLowerCase() === 'aboutme') {
+		// If it's a slash command get rid of their first argument (It's done already for legacy commands)
 		if (interaction) {
 			args.shift()
 		}
+		// Converting their value which is an array to a string
 		aboutMe = args.join(' ')
+		// Updating their file in the database
 		await profileSchema.findOneAndUpdate(
 			{
 				guildId,
@@ -79,10 +95,12 @@ const runCode = async (
 				upsert: true,
 			}
 		)
+		// Finding their file in the database (we know it exists)
 		const aboutMeResult = await profileSchema.findOne({
 			guildId,
 			userId: authorId,
 		})
+		// Assigning their profile to our "data" variable
 		data = profiles[(guildId, authorId)] = aboutMeResult
 	}
 
@@ -146,5 +164,6 @@ module.exports = {
 		} else {
 			return 'Please use one of the following for your first parameter: nickname, aboutme.'
 		}
+		// ^^^ Seeing if they typed either "nickname", or "aboutme". If they did, then run the code
 	},
 }
