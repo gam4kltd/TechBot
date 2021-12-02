@@ -1,6 +1,6 @@
-const profileSchema = require('../../models/profile-schema')
-const { MessageEmbed } = require('discord.js')
-const profiles = {}
+const profileSchema = require('../../models/profile-schema');
+const { MessageEmbed } = require('discord.js');
+const profiles = [];
 
 module.exports = {
 	category: 'Profile',
@@ -14,15 +14,17 @@ module.exports = {
 	maxArgs: 0,
 
 	callback: async ({ message, interaction }) => {
-		const guildId = message ? message.guild.id : interaction.guild.id
-		const authorId = message ? message.author.id : interaction.user.id
-		let data = profiles[(guildId, authorId)] // Seeing if their information is stored in local memory
+		const guildId = message ? message.guild.id : interaction.guild.id;
+		const authorId = message ? message.author.id : interaction.user.id;
+		let data = profiles.find(
+			(value) => value.guildId === guildId && value.authorId === authorId
+		); // Seeing if their information is stored in local memory
 		if (!data) {
 			let newResults = await profileSchema.findOne({
 				// Seeing if their information is in the database
 				guildId,
 				userId: authorId,
-			})
+			});
 
 			if (!newResults) {
 				newResults = await profileSchema.create({
@@ -32,23 +34,24 @@ module.exports = {
 					coins: 0,
 					nickname: 'None',
 					aboutMe: 'None',
-				})
+				});
 			}
 
-			data = profiles[(guildId, authorId)] = newResults // Either or, saving it to our "data" variable
+			data = profiles[guildId && authorId] = newResults; // Either or, saving it to our "data" variable
 		}
-		const { nickname, aboutMe } = data
+		const { nickname, aboutMe, coins } = data;
 
 		const username = message
 			? message.author.username
-			: interaction.user.username
+			: interaction.user.username;
 
 		const text = `*Nickname:* **${nickname}**
-*About Me*: **${aboutMe}**`
-		const embed = new MessageEmbed().setAuthor(username).setDescription(text)
+*About Me*: **${aboutMe}**
+*Coins*: **${coins}**`;
+		const embed = new MessageEmbed().setAuthor(username).setDescription(text);
 
-		return embed
+		return embed;
 	},
-}
+};
 
-module.exports.profiles = profiles
+module.exports.profiles = profiles;

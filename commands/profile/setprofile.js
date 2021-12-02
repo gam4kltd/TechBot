@@ -1,6 +1,6 @@
-const { MessageEmbed } = require('discord.js')
-const profileSchema = require('../../models/profile-schema')
-const { profiles } = require('./profile')
+const { MessageEmbed } = require('discord.js');
+const profileSchema = require('../../models/profile-schema');
+const { profiles } = require('./profile');
 
 const runCode = async (
 	guildId,
@@ -11,108 +11,78 @@ const runCode = async (
 	interaction
 ) => {
 	// Seeing if their information is stored in local memory
-	let data = profiles[(guildId, authorId)]
+	let data = profiles.find(
+		(value) => value.guildId === guildId && value.authorId === authorId
+	); // Seeing if their information is stored in local memory
 	if (!data) {
-		// Seeing if their information is stored in the database
-		const result = await profileSchema.findOne({
+		let newResults = await profileSchema.findOne({
+			// Seeing if their information is in the database
 			guildId,
 			userId: authorId,
-		})
-		if (result) {
-			// Assign their profile to our "data" variable
-			data = profiles[(guildId, authorId)] = result
-		} else {
-			// Making a file with their information
-			const createProfile = await profileSchema.create({
+		});
+
+		if (!newResults) {
+			newResults = await profileSchema.create({
+				// Making a file with their information
 				guildId,
 				userId: authorId,
 				coins: 0,
 				nickname: 'None',
 				aboutMe: 'None',
-			})
-			// Assign their profile to our "data" variable
-			data = profiles[(guildId, authorId)] = createProfile
+			});
 		}
+
+		data = profiles[guildId && authorId] = newResults; // Either or, saving it to our "data" variable
 	}
 
-	let { coins, nickname, aboutMe } = data
+	let { coins, nickname, aboutMe } = data;
 
 	// If they wrote "nickname" as their first argument
 	if (section.toLowerCase() === 'nickname') {
-		// If it's a slash command get rid of their first argument (It's done already for legacy commands)
-		if (interaction) {
-			args.shift()
-		}
-		// Converting their value which is an array to a string
-		nickname = args.join(' ')
-		// Updating their file in the database
-		await profileSchema.findOneAndUpdate(
-			{
-				guildId,
-				userId: authorId,
-			},
-			{
-				guildId,
-				userId: authorId,
-				coins,
-				nickname,
-				aboutMe,
-			},
-			{
-				upsert: true,
-			}
-		)
-		// Finding their file in the database (we know it exists)
-		const nicknameResult = await profileSchema.findOne({
+		nickname = args.join(' ');
+	} else if (section.toLowerCase() === 'aboutme') {
+		aboutMe = args.join(' ');
+	}
+	// If it's a slash command get rid of their first argument (It's done already for legacy commands)
+	if (interaction) {
+		args.shift();
+	}
+	// Updating their file in the database
+	await profileSchema.findOneAndUpdate(
+		{
 			guildId,
 			userId: authorId,
-		})
-		// Assigning their profile to our "data" variable
-		data = profiles[(guildId, authorId)] = nicknameResult
-	}
-	// If they wrote "aboutme" as their second argument
-	else if (section.toLowerCase() === 'aboutme') {
-		// If it's a slash command get rid of their first argument (It's done already for legacy commands)
-		if (interaction) {
-			args.shift()
-		}
-		// Converting their value which is an array to a string
-		aboutMe = args.join(' ')
-		// Updating their file in the database
-		await profileSchema.findOneAndUpdate(
-			{
-				guildId,
-				userId: authorId,
-			},
-			{
-				guildId,
-				userId: authorId,
-				coins,
-				nickname,
-				aboutMe,
-			},
-			{
-				upsert: true,
-			}
-		)
-		// Finding their file in the database (we know it exists)
-		const aboutMeResult = await profileSchema.findOne({
+		},
+		{
 			guildId,
 			userId: authorId,
-		})
-		// Assigning their profile to our "data" variable
-		data = profiles[(guildId, authorId)] = aboutMeResult
-	}
+			coins,
+			nickname,
+			aboutMe,
+		},
+		{
+			upsert: true,
+		}
+	);
+	// Finding their file in the database (we know it exists)
+	const result = await profileSchema.findOne({
+		guildId,
+		userId: authorId,
+	});
+	// Assigning their profile to our "data" variable
+	data = profiles[guildId && authorId] = result;
 
-	const username = message ? message.author.username : interaction.user.username
+	const username = message
+		? message.author.username
+		: interaction.user.username;
 
 	const text = `*Nickname:* **${nickname}**
-*About Me*: **${aboutMe}**`
+*About Me*: **${aboutMe}**`;
 
-	const embed = new MessageEmbed().setAuthor(username).setDescription(text)
+	const embed = new MessageEmbed().setAuthor(username).setDescription(text);
 
-	return embed
-}
+	return embed;
+};
 
 module.exports = {
 	category: 'Profile',
@@ -151,19 +121,19 @@ module.exports = {
 	],
 
 	callback: async ({ message, interaction, args }) => {
-		const guildId = message ? message.guild.id : interaction.guild.id
-		const authorId = message ? message.author.id : interaction.user.id
+		const guildId = message ? message.guild.id : interaction.guild.id;
+		const authorId = message ? message.author.id : interaction.user.id;
 
 		const section = message
 			? args.shift(' ')
-			: interaction.options.getString('section')
+			: interaction.options.getString('section');
 		if (section.toLowerCase() === 'nickname') {
-			return runCode(guildId, authorId, section, args, message, interaction)
+			return runCode(guildId, authorId, section, args, message, interaction);
 		} else if (section.toLowerCase() === 'aboutme') {
-			return runCode(guildId, authorId, section, args, message, interaction)
+			return runCode(guildId, authorId, section, args, message, interaction);
 		} else {
-			return 'Please use one of the following for your first parameter: nickname, aboutme.'
+			return 'Please use one of the following for your first parameter: nickname, aboutme.';
 		}
 		// ^^^ Seeing if they typed either "nickname", or "aboutme". If they did, then run the code
 	},
-}
+};

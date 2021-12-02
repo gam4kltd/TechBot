@@ -1,8 +1,8 @@
-const { MessageEmbed } = require('discord.js')
+const { MessageEmbed } = require('discord.js');
 const {
 	statusMessages,
 	suggestionCache,
-} = require('../../features/suggestions')
+} = require('../../features/suggestions');
 
 module.exports = {
 	category: 'Admin',
@@ -54,73 +54,73 @@ module.exports = {
 	guildOnly: true,
 
 	callback: async ({ message, interaction, args, guild }) => {
-		const messageId = args.shift()
+		const messageId = args.shift();
 
-		const status = args.shift().toUpperCase()
-		const reason = args.join(' ')
+		const status = args.shift().toUpperCase();
+		const reason = args.join(' ');
 
-		const newStatus = statusMessages[status]
+		const newStatus = statusMessages[status];
 		if (!newStatus) {
 			message.channel.send(
 				`Unknown status "${status}", please use ${Object.keys(statusMessages)}`
-			)
-			message.delete()
-			return
+			);
+			message.delete();
+			return;
 		}
 
-		const channelId = suggestionCache()[guild.id]
+		const channelId = suggestionCache()[guild.id];
 		if (!channelId) {
-			message.channel.send('An error occured, please report this')
-			message.delete()
-			return
+			message.channel.send('An error occured, please report this');
+			message.delete();
+			return;
 		}
 
-		const channel = guild.channels.cache.get(channelId)
+		const channel = guild.channels.cache.get(channelId);
 		if (!channel) {
 			if (message) {
-				message.channel.send('The suggestion channel no longer exists')
-				message.delete()
-				return
+				message.channel.send('The suggestion channel no longer exists');
+				message.delete();
+				return;
 			}
 
 			if (interaction) {
 				interaction.reply({
 					content: 'The suggestion channel no longer exists',
 					ephemeral: true,
-				})
-				return
+				});
+				return;
 			}
 		}
 
-		let targetMessage
+		let targetMessage;
 		try {
 			targetMessage = await channel.messages.fetch(messageId, {
 				cache: false,
 				force: true,
-			})
+			});
 		} catch (err) {
 			if (message) {
-				message.channel.send(`Message with ID "${messageId}" doesn't exist`)
-				message.delete()
-				return
+				message.channel.send(`Message with ID "${messageId}" doesn't exist`);
+				message.delete();
+				return;
 			}
 
 			if (interaction) {
 				interaction.reply({
 					content: `Message with ID "${messageId}" doesn't exist`,
 					ephemeral: true,
-				})
-				return
+				});
+				return;
 			}
 		}
 
-		const oldEmbed = targetMessage.embeds[0]
+		const oldEmbed = targetMessage.embeds[0];
 
 		const embed = new MessageEmbed()
 			.setAuthor(oldEmbed.author.name, oldEmbed.author.iconURL)
 			.setDescription(oldEmbed.description)
 			.setColor(newStatus.color)
-			.setFooter('Want to suggest something? Simply type it in this channel')
+			.setFooter('Want to suggest something? Simply type it in this channel');
 
 		if (oldEmbed.fields.length === 2) {
 			embed.addFields(oldEmbed.fields[0], {
@@ -128,32 +128,32 @@ module.exports = {
 				value: `${newStatus.text}${
 					reason.toLowerCase() == 'none' ? '' : ` Reason: ${reason}`
 				}`,
-			})
+			});
 		} else {
 			embed.addFields({
 				name: 'Status',
 				value: `${newStatus.text}${
 					reason.toLowerCase() == 'none' ? '' : ` Reason: ${reason}`
 				}`,
-			})
+			});
 		}
 
 		targetMessage.edit({
 			embeds: [embed],
-		})
+		});
 
 		if (message) {
-			message.channel.send('Status Updated!')
-			message.delete()
+			message.channel.send('Status Updated!');
+			message.delete();
 		}
 
 		if (interaction) {
 			interaction.reply({
 				content: `Status Updated!`,
 				ephemeral: true,
-			})
+			});
 		}
 
-		return
+		return;
 	},
-}
+};

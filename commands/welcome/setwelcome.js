@@ -1,4 +1,5 @@
-const welcomeSchema = require('../../models/welcome-schema')
+const welcomeSchema = require('../../models/welcome-schema');
+const { welcomeData } = require('../../features/welcome');
 
 module.exports = {
 	category: 'Configuration',
@@ -17,19 +18,19 @@ module.exports = {
 	callback: async ({ guild, message, interaction, args }) => {
 		const target = message
 			? message.mentions.channels.first()
-			: interaction.options.getChannel('channel')
+			: interaction.options.getChannel('channel');
 		if (!target || target.type !== 'GUILD_TEXT') {
 			return {
 				custom: true,
 				content: 'Please tag a text channel.',
 				ephemeral: true,
-			}
+			};
 		}
 
-		let text = interaction?.options.getString('text')
+		let text = interaction?.options.getString('text');
 		if (message) {
-			args.shift()
-			text = args.join(' ')
+			args.shift();
+			text = args.join(' ');
 		}
 
 		await welcomeSchema.findOneAndUpdate(
@@ -44,12 +45,14 @@ module.exports = {
 			{
 				upsert: true,
 			}
-		)
+		);
+
+		welcomeData[guild.id] = [target, text];
 
 		return {
 			custom: true,
 			content: 'Welcome channel set.',
 			ephemeral: true,
-		}
+		};
 	},
-}
+};

@@ -1,4 +1,4 @@
-const { MessageSelectMenu, MessageActionRow } = require('discord.js')
+const { MessageSelectMenu, MessageActionRow } = require('discord.js');
 
 module.exports = {
 	category: 'Configuration',
@@ -18,69 +18,66 @@ module.exports = {
 	init: (client) => {
 		client.on('interactionCreate', (interaction) => {
 			if (!interaction.isSelectMenu()) {
-				return
+				return;
 			}
 
-			const { customId, values, member } = interaction
+			const { customId, values, member } = interaction;
 
 			if (customId === 'auto_roles') {
-				const component = interaction.component
+				const component = interaction.component;
 				const removed = component.options.filter((option) => {
-					return !values.includes(option.value)
-				})
+					return !values.includes(option.value);
+				});
 
 				for (const id of removed) {
-					member.roles.remove(id.value)
+					member.roles.remove(id.value);
 				}
 
 				for (const id of values) {
-					member.roles.add(id)
+					member.roles.add(id);
 				}
 
 				interaction.reply({
 					content: 'Roles Updated!',
 					ephemeral: true,
-				})
+				});
 			}
-		})
+		});
 	},
 
 	callback: async ({ message, interaction, args, client }) => {
 		const channel = message
 			? message.mentions.channels.first()
-			: interaction.options.getChannel('channel')
+			: interaction.options.getChannel('channel');
 		if (!channel || channel.type !== 'GUILD_TEXT') {
 			return {
 				custom: true,
 				content: 'Please tag a text channel.',
 				ephemeral: true,
-			}
+			};
 		}
 
-		const messageId = args[1]
+		const messageId = args[1];
 
 		const role = message
 			? message.mentions.roles.first()
-			: interaction.options.getRole('role')
+			: interaction.options.getRole('role');
 		if (!role) {
 			return {
 				custom: true,
 				content: `Unknown role.`,
 				ephemeral: true,
-			}
+			};
 		}
 
-		const targetMessage = await channel.messages.fetch(messageId, {
-			cache: true,
-			force: true,
-		})
-
-		if (!targetMessage) {
-			return {
-				custom: true,
-				content: `Unknown message ID.`,
-				ephemeral: true,
-			}
+		let targetMessage;
+		try {
+			targetMessage = await channel.messages.fetch(messageId, {
+				cache: true,
+				force: true,
+			});
+		} catch (e) {
+			return "You either didn't specify the correct channel that the message is in or the message id is invalid.";
 		}
 
 		if (targetMessage.author.id !== client.user.id) {
@@ -88,12 +85,12 @@ module.exports = {
 				custom: true,
 				content: `Please provide a message ID that was sent from <@${client.user.id}>`,
 				ephemeral: true,
-			}
+			};
 		}
 
-		let row = targetMessage.components[0]
+		let row = targetMessage.components[0];
 		if (!row) {
-			row = new MessageActionRow()
+			row = new MessageActionRow();
 		}
 
 		const option = [
@@ -101,9 +98,9 @@ module.exports = {
 				label: role.name,
 				value: role.id,
 			},
-		]
+		];
 
-		let menu = row.components[0]
+		let menu = row.components[0];
 		if (menu) {
 			for (const o of menu.options) {
 				if (o.value === option[0].value) {
@@ -114,12 +111,12 @@ module.exports = {
 							roles: [],
 						},
 						ephemeral: true,
-					}
+					};
 				}
 			}
 
-			menu.addOptions(option)
-			menu.setMaxValues(menu.options.length)
+			menu.addOptions(option);
+			menu.setMaxValues(menu.options.length);
 		} else {
 			row.addComponents(
 				new MessageSelectMenu()
@@ -128,12 +125,12 @@ module.exports = {
 					.setMaxValues(1)
 					.setPlaceholder('Select your roles...')
 					.addOptions(option)
-			)
+			);
 		}
 
 		targetMessage.edit({
 			components: [row],
-		})
+		});
 
 		return {
 			custom: true,
@@ -142,6 +139,6 @@ module.exports = {
 				roles: [],
 			},
 			ephemeral: true,
-		}
+		};
 	},
-}
+};
